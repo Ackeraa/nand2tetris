@@ -32,6 +32,9 @@ def pre_process(code):
 
 def compile(code):
     asmcode = []
+    push_cmds = [ "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1" ]
+    pop_cmds = [ "@SP", "M=M-1", "A=M", "D=M" ]
+    latt = {"arguments:": "ARG", "local": "LCL", "this": "THIS", "that": "THAT"}
     for i, line in enumerate(code):
         line = line.split(" ")
         n = len(line)
@@ -108,43 +111,28 @@ def compile(code):
                     cmds = [
                             "@"+arg2,
                             "D=A",
-                            "@SP",
-                            "A=M",
-                            "M=D",
-                            "@SP",
-                            "M=M+1",
+                            *push_cmds[1:]
                         ] 
-                elif arg1 == "local" or arg1 ==  "argument":
-                    # push local 1 -> lcl+=1; *sp=*lcl; sp++
-                    if arg1 == "local":
-                        cmd = "@"+"LCL"
-                    elif arg1 == "argument":
-                        cmd = "@"+"ARG"
+                elif arg1 in latt.keys():    # LCL, ARG, THIS, THAT
+                    # push local i -> addr = lcl+i; *sp=*addr; sp++
                     cmds = [
-                            cmd,
-                            "M=M+"+arg2,
-                            "A=M",
+                            "@"+latt[arg1],
                             "D=M",
-                            "@SP",
-                            "A=M",
-                            "M=D",
-                            "@SP",
-                            "M=M+1",
+                            "@"+arg2,
+                            "A=D+A",
+                            *push_cmds,
                         ]
-                elif arg1 == "static" or arg1 == "pointer":
-                    if arg1 == "static":
-                        cmd = "@"+sys.argv[0]+"."+arg2
-                    elif arg1 == "pointer":
-                        cmd = "@THIS" if arg2 == "0" else "@THAT"
+
+                elif arg1 == "pointer":
+                    cmd = "@THIS" if arg2 == "0" else "@THAT"
                     cmds = [
                             cmd,
-                            "A=M",
-                            "D=M",
-                            "@SP",
-                            "A=M",
-                            "M=D",
-                            "@SP",
-                            "M=M+1",
+                            *push_cmds,
+                        ]
+                elif arg1 == "static":
+                    cmds = [
+                            f"@{sys.argv[0]}.{arg2}",
+                            *push_cmds,
                         ]
                 elif arg1 == "temp":
                     cmds = [
@@ -152,58 +140,50 @@ def compile(code):
                             "D=A",
                             "@"+arg2,
                             "A=A+D",
-                            "D=M"
-                            "@SP",
-                            "A=M",
-                            "M=D",
-                            "@SP",
-                            "M=M+1",
+                            *push_cmds,
                         ]
             elif op == "pop":
-                if arg1 == "local" or arg1 ==  "argument":
-                    # pop local i -> sp--; addr=LCL+i; *addr=*sp;
-                    if arg1 == "local":
-                        cmd = "@"+"LCL"
-                    elif arg1 == "argument":
-                        cmd = "@"+"ARG"
+                if arg1 in latt.keys():    # LCL, ARG, THIS, THAT
+                    # pop local i -> addr=LCL+i; sp--; *addr=*sp;
                     cmds = [
-                            "@SP",
-                            "M=M-1",
-                            "A=M",
-                            "R13=M",
-                            cmd,
-                            "D=A",
-                            "@"+arg2,
-                            "A=D+A",
-                            "M=R13"
-                        ]
-                elif arg1 == "static" or arg1 == "pointer":
-                    # pop pointer 0 -> sp--; *This=*sp
-                    if arg1 == "static":
-                        cmd = "@"+sys.argv[0]+"."+arg2
-                    elif arg1 == "pointer":
-                        cmd = "@THIS" if arg2 == "0" else "@THAT"
-                    cmds = [
-                            "@SP",
-                            "M=M-1",
-                            "A=M"
+                            "@"+latt[arg1],
                             "D=M",
-                            cmd,
+                            "@"+arg2,
+                            "D=D+A",
+                            "@R13",
+                            "M=D",
+                            *pop_cmds,
+                            "@R13",
                             "A=M",
                             "M=D",
                         ]
-                elif arg1 == "temp":
-                    # pop temp i -> sp--; addr=5+i; *addr=*sp
+                elif arg1 == "pointer":
+                    # pop pointer 0 -> sp--; *This=*sp
+                    cmd = "@THIS" if arg2 == "0" else "@THAT"
                     cmds = [
-                            "@SP",
-                            "M=M-1"
-                            "A=M",
-                            "R13=M"
+                            *pop_cmds,
+                            cmd,
+                            "M=D",
+                        ]
+                elif arg1 == "static":
+                    cmds = [
+                            *pop_cmds,
+                            f"@{sys.argv[0]}.{arg2}",
+                            "M=D",
+                        ]
+                elif arg1 == "temp": # TODO: combine with pointer
+                    # pop temp i -> addr=5+i; sp--; *addr=*sp
+                    cmds = [
                             "@5",
                             "D=A",
                             "@"+arg2,
-                            "A=D+A",
-                            "M=R13"
+                            "D=D+A",
+                            "@R13",
+                            "M=D",
+                            *pop_cmds,
+                            "@R13",
+                            "A=M",
+                            "M=D",
                         ]
             else:
                 pass

@@ -1,11 +1,11 @@
-push constant 57
-push constant 31
-push constant 53
-add
-push constant 112
+push constant 111
+push constant 333
+push constant 888
+pop static 8
+pop static 3
+pop static 1
+push static 3
+push static 1
 sub
-neg
-and
-push constant 82
-or
-not
+push static 8
+add

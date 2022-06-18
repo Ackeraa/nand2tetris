@@ -33,7 +33,7 @@ def pre_process(code):
 def compile(code):
     asmcode = []
     push_cmds = [ "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1" ]
-    pop_cmds = [ "@SP", "M=M-1", "A=M", "D=M" ]
+    pop_cmds = [ "@SP", "AM=M-1", "D=M" ]
     latt = {"argument": "ARG", "local": "LCL", "this": "THIS", "that": "THAT"}
     for i, line in enumerate(code):
         line = line.split(" ")
@@ -52,8 +52,7 @@ def compile(code):
                 cmds = [
                         *pop_cmds, 
                         "@SP",
-                        "M=M-1",
-                        "A=M",
+                        "AM=M-1",
                         cmd,
                         "M=D",
                         "@SP",
@@ -63,8 +62,7 @@ def compile(code):
                 cmd = "M=-M" if op == "neg" else "M=!M"
                 cmds = [
                         "@SP",
-                        "M=M-1",
-                        "A=M",
+                        "AM=M-1",
                         cmd,
                         "@SP",
                         "M=M+1",
@@ -79,8 +77,7 @@ def compile(code):
                 cmds = [
                         *pop_cmds,
                         "@SP",
-                        "M=M-1",
-                        "A=M",
+                        "AM=M-1",
                         "D=M-D",
                         f"@TRUE_{i}",
                         cmd,

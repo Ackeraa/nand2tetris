@@ -34,7 +34,7 @@ def compile(code):
     asmcode = []
     push_cmds = [ "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1" ]
     pop_cmds = [ "@SP", "M=M-1", "A=M", "D=M" ]
-    latt = {"arguments:": "ARG", "local": "LCL", "this": "THIS", "that": "THAT"}
+    latt = {"argument": "ARG", "local": "LCL", "this": "THIS", "that": "THAT"}
     for i, line in enumerate(code):
         line = line.split(" ")
         n = len(line)
@@ -171,7 +171,7 @@ def compile(code):
                             f"@{sys.argv[0]}.{arg2}",
                             "M=D",
                         ]
-                elif arg1 == "temp": # TODO: combine with pointer
+                elif arg1 == "temp":
                     # pop temp i -> addr=5+i; sp--; *addr=*sp
                     cmds = [
                             "@5",

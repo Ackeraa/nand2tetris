@@ -32,13 +32,13 @@ def pre_process(code):
 
 def compile(code):
     asmcode = []
-    for line in code:
+    for i, line in enumerate(code):
         line = line.split(" ")
         n = len(line)
         if n == 1:    # Arithmetic
             op = line[0]
-            if op in ["add", "sub", "and", "or"] 
-                if op == "and":
+            if op in ["add", "sub", "and", "or"]:
+                if op == "add":
                     cmd = "D=D+M" 
                 elif op == "sub":
                     cmd = "D=M-D"
@@ -67,7 +67,7 @@ def compile(code):
                         "A=M",
                         cmd,
                         "@SP",
-                        "M=M+1"
+                        "M=M+1",
                     ]
             elif op in ["eq", "gt", "lt"]:
                 if op == "eq":
@@ -84,19 +84,20 @@ def compile(code):
                         "@SP",
                         "M=M-1",
                         "A=M",
-                        "D=D-M",
-                        "@TRUE",
+                        "D=M-D",
+                        f"@TRUE_{i}",
                         cmd,
                         "D=0",
-                        "@END"
-                        "0;JMP"
-                        "(TRUE)",
-                        "D=1"
-                        "(END)",
+                        f"@END_{i}",
+                        "0;JMP",
+                        f"(TRUE_{i})",
+                        "D=-1",  #0xFFFF
+                        f"(END_{i})",
+                        "@SP",
+                        "A=M",
                         "M=D",
                         "@SP",
                         "M=M+1",
-
                     ]
         elif n == 2:  #  
             pass

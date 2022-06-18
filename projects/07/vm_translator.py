@@ -37,121 +37,173 @@ def compile(code):
         n = len(line)
         if n == 1:    # Arithmetic
             op = line[0]
-            if op == "add":
-                cmds = [ "@SP",
-                         "M=M-1",
-                         "A=M",
-                         "D=M",
-                         "@SP",
-                         "M=M-1",
-                         "A=M",
-                         "D=D+M",
-                         "M=D",
-                         "@SP",
-                         "M=M+1" ]
-            else:
-                pass
+            if op in ["add", "sub", "and", "or"] 
+                if op == "and":
+                    cmd = "D=D+M" 
+                elif op == "sub":
+                    cmd = "D=M-D"
+                elif op == "and":
+                    cmd = "D=D&M"
+                elif op == "or":
+                    cmd = "D=D|M"
+                cmds = [
+                        "@SP",
+                        "M=M-1",
+                        "A=M",
+                        "D=M",
+                        "@SP",
+                        "M=M-1",
+                        "A=M",
+                        cmd,
+                        "M=D",
+                        "@SP",
+                        "M=M+1",
+                     ]
+            elif op == "neg" or op == "not":
+                cmd = "M=-M" if op == "neg" else "M=!M"
+                cmds = [
+                        "@SP",
+                        "M=M-1",
+                        "A=M",
+                        cmd,
+                        "@SP",
+                        "M=M+1"
+                    ]
+            elif op in ["eq", "gt", "lt"]:
+                if op == "eq":
+                    cmd = "D;JEQ"
+                elif op == "gt":
+                    cmd = "D;JGT"
+                elif op == "lt":
+                    cmd = "D;JLT"
+                cmds = [
+                        "@SP",
+                        "M=M-1",
+                        "A=M",
+                        "D=M",
+                        "@SP",
+                        "M=M-1",
+                        "A=M",
+                        "D=D-M",
+                        "@TRUE",
+                        cmd,
+                        "D=0",
+                        "@END"
+                        "0;JMP"
+                        "(TRUE)",
+                        "D=1"
+                        "(END)",
+                        "M=D",
+                        "@SP",
+                        "M=M+1",
+
+                    ]
         elif n == 2:  #  
             pass
         elif n == 3:  #
             op, arg1, arg2 = line
             if op == "push":
                 if arg1 == "constant":
-                    cmds = [ "@"+arg2,
-                             "D=A",
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1" ] 
-
+                    cmds = [
+                            "@"+arg2,
+                            "D=A",
+                            "@SP",
+                            "A=M",
+                            "M=D",
+                            "@SP",
+                            "M=M+1",
+                        ] 
                 elif arg1 == "local" or arg1 ==  "argument":
                     # push local 1 -> lcl+=1; *sp=*lcl; sp++
                     if arg1 == "local":
                         cmd = "@"+"LCL"
                     elif arg1 == "argument":
                         cmd = "@"+"ARG"
-                    cmds = [ cmd,
-                             "M=M+"+arg2,
-                             "A=M",
-                             "D=M",
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1"
-                            ]
-
+                    cmds = [
+                            cmd,
+                            "M=M+"+arg2,
+                            "A=M",
+                            "D=M",
+                            "@SP",
+                            "A=M",
+                            "M=D",
+                            "@SP",
+                            "M=M+1",
+                        ]
                 elif arg1 == "static" or arg1 == "pointer":
                     if arg1 == "static":
                         cmd = "@"+sys.argv[0]+"."+arg2
                     elif arg1 == "pointer":
                         cmd = "@THIS" if arg2 == "0" else "@THAT"
-                    cmds = [ cmd,
-                             "A=M",
-                             "D=M",
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1" ]
-
+                    cmds = [
+                            cmd,
+                            "A=M",
+                            "D=M",
+                            "@SP",
+                            "A=M",
+                            "M=D",
+                            "@SP",
+                            "M=M+1",
+                        ]
                 elif arg1 == "temp":
-                    cmds = [ "@5",
-                             "D=A",
-                             "@"+arg2,
-                             "A=A+D",
-                             "D=M"
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1" ]
-
+                    cmds = [
+                            "@5",
+                            "D=A",
+                            "@"+arg2,
+                            "A=A+D",
+                            "D=M"
+                            "@SP",
+                            "A=M",
+                            "M=D",
+                            "@SP",
+                            "M=M+1",
+                        ]
             elif op == "pop":
                 if arg1 == "local" or arg1 ==  "argument":
-                    # pop local i -> lcl+=i; sp--; *lcl=*sp;
+                    # pop local i -> sp--; addr=LCL+i; *addr=*sp;
                     if arg1 == "local":
                         cmd = "@"+"LCL"
                     elif arg1 == "argument":
                         cmd = "@"+"ARG"
-                    cmds = [ "@"+arg2,
-                             "D=A",
-                             cmd,
-                             "D=D+A",
-                             "@SP",
-                             "M=M-1",
-                             "A=M",
-
-
-
-                            ]
-
+                    cmds = [
+                            "@SP",
+                            "M=M-1",
+                            "A=M",
+                            "R13=M",
+                            cmd,
+                            "D=A",
+                            "@"+arg2,
+                            "A=D+A",
+                            "M=R13"
+                        ]
                 elif arg1 == "static" or arg1 == "pointer":
+                    # pop pointer 0 -> sp--; *This=*sp
                     if arg1 == "static":
                         cmd = "@"+sys.argv[0]+"."+arg2
                     elif arg1 == "pointer":
                         cmd = "@THIS" if arg2 == "0" else "@THAT"
-                    cmds = [ cmd,
-                             "A=M",
-                             "D=M",
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1" ]
-
+                    cmds = [
+                            "@SP",
+                            "M=M-1",
+                            "A=M"
+                            "D=M",
+                            cmd,
+                            "A=M",
+                            "M=D",
+                        ]
                 elif arg1 == "temp":
-                    cmds = [ "@5",
-                             "D=A",
-                             "@"+arg2,
-                             "A=A+D",
-                             "D=M"
-                             "@SP",
-                             "A=M",
-                             "M=D",
-                             "@SP",
-                             "M=M+1" ]
+                    # pop temp i -> sp--; addr=5+i; *addr=*sp
+                    cmds = [
+                            "@SP",
+                            "M=M-1"
+                            "A=M",
+                            "R13=M"
+                            "@5",
+                            "D=A",
+                            "@"+arg2,
+                            "A=D+A",
+                            "M=R13"
+                        ]
             else:
                 pass
         else:

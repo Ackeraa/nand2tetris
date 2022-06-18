@@ -50,10 +50,7 @@ def compile(code):
                 elif op == "or":
                     cmd = "D=D|M"
                 cmds = [
-                        "@SP",
-                        "M=M-1",
-                        "A=M",
-                        "D=M",
+                        *pop_cmds, 
                         "@SP",
                         "M=M-1",
                         "A=M",
@@ -80,10 +77,7 @@ def compile(code):
                 elif op == "lt":
                     cmd = "D;JLT"
                 cmds = [
-                        "@SP",
-                        "M=M-1",
-                        "A=M",
-                        "D=M",
+                        *pop_cmds,
                         "@SP",
                         "M=M-1",
                         "A=M",
@@ -96,11 +90,7 @@ def compile(code):
                         f"(TRUE_{i})",
                         "D=-1",  #0xFFFF
                         f"(END_{i})",
-                        "@SP",
-                        "A=M",
-                        "M=D",
-                        "@SP",
-                        "M=M+1",
+                        *push_cmds[1:],
                     ]
         elif n == 2:  #  
             pass

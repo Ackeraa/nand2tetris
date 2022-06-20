@@ -68,39 +68,63 @@ class CodeWriter:
         pass
 
     def write(self, line):
+        if line is None:
+            return
+        op = line[0]
+#Type = Enum("Type", "ARITHMETIC PUSH POP LABEL GOTO IF FUNCTION RETURN CALL")
+        if op == Type.ARITHMETIC:
+            self.write(line)
+        elif op == Type.PUSH:
+            self.write_push(line)
+        elif op == Type.POP:
+            self.write_pop(line)
+        elif op == Type.LABEL:
+            self.write_label(line)
+        elif op == Type.GOTO:
+            self.write_goto(line)
+        elif op == Type.IF:
+            self.write_if(line)
+        elif op == Type.FUNCTION:
+            self.write_function(line)
+        elif line[0] == Type.RETURN:
+            self.write_return(line)
+        else:
+            self.write_call(line)
+
+
+            
+
+    def write_init(self, line):
         pass
 
-    def write_init(self):
+    def write_arithmetic(self, line):
         pass
 
-    def write_arithmetic(self):
+    def write_push(self, line):
         pass
 
-    def write_push(self):
+    def write_pop(self, line):
         pass
 
-    def write_pop(self):
+    def write_label(self, line):
         pass
 
-    def write_label(self):
+    def write_goto(self, line):
         pass
 
-    def write_goto(self):
+    def write_if(self, line):
         pass
 
-    def write_if(self):
+    def write_call(self, line):
         pass
 
-    def write_call(self):
+    def write_return(self, line):
         pass
 
-    def write_return(self):
+    def write_function(self, line):
         pass
 
-    def write_function(self):
-        pass
-
-    def close_file(self):
+    def close_file(self, line):
         pass
 
 if __name__ == "__main__":
@@ -111,7 +135,7 @@ if __name__ == "__main__":
     
     while parser.has_more():
         parser.advance()
-        op, arg1, arg2 = parser.get_type()
-        writer.write(op, arg1, arg2)
+        cmd = parser.get_type()
+        writer.write(cmd)
     writer.close_file()
 

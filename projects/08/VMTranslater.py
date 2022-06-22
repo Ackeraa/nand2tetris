@@ -6,7 +6,7 @@ class Parser:
 
     def __init__(self):
         self.lines = []
-        self.idx = 0
+        self.idx = -1
 
     def read_file(self):
         self.filename = sys.argv[1]
@@ -14,24 +14,25 @@ class Parser:
             self.lines = f.readlines()
 
     def has_more(self):
-        return self.idx < len(self.lines)
+        return self.idx < len(self.lines) - 1
 
     def advance(self):
         self.idx += 1
 
     def get_type(self):
-        line = self.lines[self.idx].strip().split("//")[0].strip().split(" ")
-        n = len(line)
-        if line == [""]:
+        line = self.lines[self.idx].strip()
+        if line.startswith("//") or len(line) == 0:
             return None
-        elif n == 1:
+        line = line.split("//")[0].strip().split(" ")
+        n = len(line)
+        if n == 1:
             op = line[0]
             if op == "return":
                 return Type.RETURN
             elif op in ["add", "sub", "and", "or", "not", "neg", "eq", "gt", "lt"]:
                 return Type.ARITHMETIC, line[0]
             else:
-                raise Exception("Wrong command" + str(line))
+                raise Exception("Wrong command: " + str(line))
         elif n == 2:
             op, arg1 = line
             if op == "label":
@@ -41,7 +42,7 @@ class Parser:
             elif op == "goto":
                 return Type.GOTO, arg1
             else:
-                raise Exception("Wrong command" + str(line))
+                raise Exception("Wrong command: " + str(line))
 
         elif n == 3:
             op, arg1, arg2 = line
@@ -54,14 +55,13 @@ class Parser:
             elif op == "function":
                 return Type.FUNCTION, arg1, arg2
             else:
-                raise Exception("Wrong command" + str(line))
+                raise Exception("Wrong command: " + str(line))
         else:
-            raise Exception("Wrong command" + str(line))
+            raise Exception("Wrong command: " + str(line))
 
 class cmdWriter:
 
     def __init__(self):
-        self.filename = None
         self.cmds = []
         self.idx = 0
         self.push_cmds = [ "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1" ]
@@ -69,7 +69,10 @@ class cmdWriter:
         self.latt = {"local": "LCL", "argument": "ARG", "this": "THIS", "that": "THAT"}
 
     def write_file(self):
-        self.filename = sys.argv[1].split(".")[0] + ".asm"
+        filename = sys.argv[1].split(".")[0] + ".asm"
+        with open(filename, 'w') as f:
+            for cmd in self.cmds:
+                f.write(cmd+ "\n")
 
     def trans(self, line):
         if line is None:
@@ -242,13 +245,24 @@ class cmdWriter:
         return cmds
 
     def trans_label(self, line):
-        pass
+        return ["("+line[0]+")"]
 
     def trans_goto(self, line):
-        pass
+        cmds = [
+                "@"+line[0],
+                "0;JMP",
+            ]
+
+        return cmds
 
     def trans_if(self, line):
-        pass
+        cmds = [
+                *self.pop_cmds,
+                "@"+line[0],
+                "D;JNE",
+            ]
+        
+        return cmds
 
     def trans_call(self, line):
         pass

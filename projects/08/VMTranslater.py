@@ -28,7 +28,7 @@ class Parser:
         if n == 1:
             op = line[0]
             if op == "return":
-                return Type.RETURN
+                return Type.RETURN, ""
             elif op in ["add", "sub", "and", "or", "not", "neg", "eq", "gt", "lt"]:
                 return Type.ARITHMETIC, line[0]
             else:
@@ -95,7 +95,7 @@ class cmdWriter:
         elif tp == Type.FUNCTION:
             cmd = self.trans_function(line)
         elif tp == Type.RETURN:
-            cmd = self.trans_return(line)
+            cmd = self.trans_return()
         else:   # Type.CALL
             cmd = self.trans_call(line)
 
@@ -265,13 +265,114 @@ class cmdWriter:
         return cmds
 
     def trans_call(self, line):
-        pass
+        f, n = line
+        cmds = [
+                "@return-address",
+                "D=A",
+                *self.push_cmds[1:],
+                "@LCL",
+                *self.push_cmds,
+                "@ARG",
+                *self.push_cmds,
+                "@THIS",
+                *self.push_cmds,
+                "@THAT",
+                *self.push_cmds,
+                # ARG = SP-n-5
+                "@SP",
+                "D=A",
+                "@"+n,
+                "D=D-A",
+                "@5",
+                "D=D-A",
+                "@ARG",
+                "M=D",
+                # LCL = SP
+                "@SP",
+                "D=M",
+                "@LCL",
+                "M=D",
+                # goto f
+                "@"+f,
+                "0;JMP",
+                "(return-address)",
+            ]
 
-    def trans_return(self, line):
-        pass
+        return cmds
+
+    def trans_return(self):
+        cmds = [
+                # FRAME = LCL
+                "@LCL",
+                "D=M",
+                "@FRAME",
+                "M=D",
+                # RET = *(FRAME - 5)
+                "@5",
+                "A=D-A",
+                "D=M",
+                "@RET",
+                "M=D",
+                # *ARG = POP()
+                *self.pop_cmds,
+                "@ARG",
+                "A=M",
+                "M=D",
+                # SP = ARG+1
+                "@ARG",
+                "D=M",
+                "D=D+1",
+                "@SP",
+                "M=D",
+                # THAT = *(FRAME-1)
+                "@FRAME",
+                "AM=M-1",
+                "D=M",
+                "@THAT",
+                "M=D",
+                # THIS = *(FRAME-2)
+                "@FRAME",
+                "AM=M-1",
+                "D=M",
+                "@THIS",
+                "M=D",
+                # ARG = *(FRAME-3)
+                "@FRAME",
+                "AM=M-1",
+                "D=M",
+                "@ARG",
+                "M=D",
+                # LCL = *(FRAME-4)
+                "@FRAME",
+                "AM=M-1",
+                "D=M",
+                "@LCL",
+                "M=D",
+                # goto RET
+                "@RET",
+                "A=M",
+                "0;JMP",
+            ]
+
+        return cmds
 
     def trans_function(self, line):
-        pass
+        f, k = line
+        cmds = [
+                "("+f+")",
+                "@"+k,
+                "D=A",
+                "@R14",
+                "M=D",
+                f"(REPEAT_{self.idx})",
+                *self.trans_push(["constant", "0"]),
+                "@R14",
+                "MD=M-1",
+                f"@REPEAT_{self.idx}",
+                "D;JGT",
+            ]
+
+        return cmds
 
 if __name__ == "__main__":
     parser = Parser()

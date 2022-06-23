@@ -1,6 +1,14 @@
+@256
+D=A
+@SP
+M=D
+@Sys.init
+0;JMP
 (SimpleFunction.test)
 @2
 D=A
+@END_1
+D;JEQ
 @R14
 M=D
 (REPEAT_1)
@@ -15,6 +23,7 @@ M=M+1
 MD=M-1
 @REPEAT_1
 D;JGT
+(END_1)
 @LCL
 D=M
 @0

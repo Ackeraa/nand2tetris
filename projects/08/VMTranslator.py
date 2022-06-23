@@ -1,15 +1,17 @@
 import sys
+import os
 from enum import Enum
 
 Type = Enum("Type", "ARITHMETIC PUSH POP LABEL GOTO IF FUNCTION RETURN CALL")
 class Parser:
 
-    def __init__(self):
+    def __init__(self, filename="Sys.vm"):
+        self.filename = filename
+        self.staticpre = os.path.split(filename)[1][:-2]
         self.lines = []
         self.idx = -1
 
     def read_file(self):
-        self.filename = sys.argv[1]
         with open(self.filename, 'r') as f:
             self.lines = f.readlines()
 
@@ -47,8 +49,12 @@ class Parser:
         elif n == 3:
             op, arg1, arg2 = line
             if op == "push":
+                if arg1 == "static":
+                    arg2 = self.staticpre+arg2
                 return Type.PUSH, arg1, arg2
             elif op == "pop":
+                if arg1 == "static":
+                    arg2 = self.staticpre+arg2
                 return Type.POP, arg1, arg2
             elif op == "call":
                 return Type.CALL, arg1, arg2
@@ -59,18 +65,24 @@ class Parser:
         else:
             raise Exception("Wrong command: " + str(line))
 
-class cmdWriter:
+class CodeWriter:
 
-    def __init__(self):
-        self.cmds = []
+    def __init__(self, filename, is_single):
+        self.filename = filename
         self.idx = 0
+        self.func = "_"
+        self.ret_addr = 0
         self.push_cmds = [ "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1" ]
         self.pop_cmds = [ "@SP", "AM=M-1", "D=M" ]
         self.latt = {"local": "LCL", "argument": "ARG", "this": "THIS", "that": "THAT"}
 
+        if is_single:
+            self.cmds = []
+        else:
+            self.cmds = self.trans_init()
+
     def write_file(self):
-        filename = sys.argv[1].split(".")[0] + ".asm"
-        with open(filename, 'w') as f:
+        with open(self.filename, 'w') as f:
             for cmd in self.cmds:
                 f.write(cmd+ "\n")
 
@@ -101,8 +113,16 @@ class cmdWriter:
 
         self.cmds.extend(cmd)
 
-    def trans_init(self, line):
-        pass
+    def trans_init(self):
+        cmds = [
+                "@256",
+                "D=A",
+                "@SP",
+                "M=D",
+                *self.trans_call(["Sys.init", "0"]),
+            ]
+
+        return cmds
 
     def trans_arithmetic(self, line):
         op = line[0]
@@ -183,7 +203,7 @@ class cmdWriter:
                 ]
         elif arg1 == "static":
             cmds = [
-                    f"@{sys.argv[0]}.{arg2}",
+                    "@"+arg2,
                     *self.push_cmds,
                 ]
         else:   # arg1 == "temp"
@@ -224,7 +244,7 @@ class cmdWriter:
         elif arg1 == "static":
             cmds = [
                     *self.pop_cmds,
-                    f"@{sys.argv[0]}.{arg2}",
+                    "@"+arg2,
                     "M=D",
                 ]
         else:   # arg1 == "temp"
@@ -245,29 +265,33 @@ class cmdWriter:
         return cmds
 
     def trans_label(self, line):
-        return ["("+line[0]+")"]
+        label = self.func + "$" + line[0]
+        return ["("+label+")"]
 
     def trans_goto(self, line):
+        label = self.func + "$" + line[0]
         cmds = [
-                "@"+line[0],
+                "@"+label,
                 "0;JMP",
             ]
 
         return cmds
 
     def trans_if(self, line):
+        label = self.func + "$" + line[0]
         cmds = [
                 *self.pop_cmds,
-                "@"+line[0],
+                "@"+label,
                 "D;JNE",
             ]
         
         return cmds
 
     def trans_call(self, line):
+        self.ret_addr += 1
         f, n = line
         cmds = [
-                "@return-address",
+                f"@return_{self.ret_addr}",
                 "D=A",
                 *self.push_cmds[1:],
                 "@LCL",
@@ -280,7 +304,7 @@ class cmdWriter:
                 *self.push_cmds,
                 # ARG = SP-n-5
                 "@SP",
-                "D=A",
+                "D=M",
                 "@"+n,
                 "D=D-A",
                 "@5",
@@ -295,7 +319,29 @@ class cmdWriter:
                 # goto f
                 "@"+f,
                 "0;JMP",
-                "(return-address)",
+                f"(return_{self.ret_addr})",
+            ]
+
+        return cmds
+
+    def trans_function(self, line):
+        f, k = line
+        self.func = f
+        cmds = [
+                "("+f+")",
+                "@"+k,
+                "D=A",
+                f"@END_{self.idx}",
+                "D;JEQ",
+                "@R14",
+                "M=D",
+                f"(REPEAT_{self.idx})",
+                *self.trans_push(["constant", "0"]),
+                "@R14",
+                "MD=M-1",
+                f"@REPEAT_{self.idx}",
+                "D;JGT",
+                f"(END_{self.idx})",
             ]
 
         return cmds
@@ -356,33 +402,31 @@ class cmdWriter:
 
         return cmds
 
-    def trans_function(self, line):
-        f, k = line
-        cmds = [
-                "("+f+")",
-                "@"+k,
-                "D=A",
-                "@R14",
-                "M=D",
-                f"(REPEAT_{self.idx})",
-                *self.trans_push(["constant", "0"]),
-                "@R14",
-                "MD=M-1",
-                f"@REPEAT_{self.idx}",
-                "D;JGT",
-            ]
-
-        return cmds
-
 if __name__ == "__main__":
-    parser = Parser()
-    parser.read_file()
-
-    writer = cmdWriter()
     
-    while parser.has_more():
-        parser.advance()
-        cmd = parser.get_type()
-        writer.trans(cmd)
+    path = sys.argv[1]
+    files = []
+    is_single = True
+    if path.endswith(".vm"):
+        files.append(path)
+        out_file = path[:-2]+"asm"
+    else:
+        for file in os.listdir(path):
+            if file.endswith(".vm"):
+                files.append(os.path.join(path, file))
+        out_file = os.path.join(path, os.path.split(path)[1]+".asm")
+        is_single = False
+
+    writer = CodeWriter(out_file, is_single)
+
+    for file in files:
+        parser = Parser(file)
+        parser.read_file()
+
+        while parser.has_more():
+            parser.advance()
+            cmd = parser.get_type()
+            writer.trans(cmd)
+
     writer.write_file()
 

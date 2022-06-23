@@ -24,7 +24,7 @@ def pre_process(code):
         # blank line
         if line.startswith("//") or len(line) == 0:
             continue
-        line = line.split("//")[0]
+        line = line.split("//")[0].strip()
         code2.append(line)
 
     return code2

@@ -1,142 +1,121 @@
 <tokens>
-<keyword> class </keyword>
-<identifier> Main </identifier>
-<symbol> { </symbol>
-<keyword> function </keyword>
-<keyword> void </keyword>
-<identifier> main </identifier>
-<symbol> ( </symbol>
-<symbol> ) </symbol>
-<symbol> { </symbol>
-<keyword> var </keyword>
-<identifier> Array </identifier>
-<identifier> a </identifier>
-<symbol> ; </symbol>
-<keyword> var </keyword>
-<keyword> int </keyword>
-<identifier> length </identifier>
-<symbol> ; </symbol>
-<keyword> var </keyword>
-<keyword> int </keyword>
-<identifier> i </identifier>
-<symbol> , </symbol>
-<identifier> sum </identifier>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> length </identifier>
-<symbol> = </symbol>
-<identifier> Keyboard </identifier>
-<symbol> . </symbol>
-<identifier> readInt </identifier>
-<symbol> ( </symbol>
-<stringConstant> HOW MANY NUMBERS?  </stringConstant>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> a </identifier>
-<symbol> = </symbol>
-<identifier> Array </identifier>
-<symbol> . </symbol>
-<identifier> new </identifier>
-<symbol> ( </symbol>
-<identifier> length </identifier>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> i </identifier>
-<symbol> = </symbol>
-<integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
-<keyword> while </keyword>
-<symbol> ( </symbol>
-<identifier> i </identifier>
-<symbol> &lt; </symbol>
-<identifier> length </identifier>
-<symbol> ) </symbol>
-<symbol> { </symbol>
-<keyword> let </keyword>
-<identifier> a </identifier>
-<symbol> [ </symbol>
-<identifier> i </identifier>
-<symbol> ] </symbol>
-<symbol> = </symbol>
-<identifier> Keyboard </identifier>
-<symbol> . </symbol>
-<identifier> readInt </identifier>
-<symbol> ( </symbol>
-<stringConstant> ENTER THE NEXT NUMBER:  </stringConstant>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> i </identifier>
-<symbol> = </symbol>
-<identifier> i </identifier>
-<symbol> + </symbol>
-<integerConstant> 1 </integerConstant>
-<symbol> ; </symbol>
-<symbol> } </symbol>
-<keyword> let </keyword>
-<identifier> i </identifier>
-<symbol> = </symbol>
-<integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> sum </identifier>
-<symbol> = </symbol>
-<integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
-<keyword> while </keyword>
-<symbol> ( </symbol>
-<identifier> i </identifier>
-<symbol> &lt; </symbol>
-<identifier> length </identifier>
-<symbol> ) </symbol>
-<symbol> { </symbol>
-<keyword> let </keyword>
-<identifier> sum </identifier>
-<symbol> = </symbol>
-<identifier> sum </identifier>
-<symbol> + </symbol>
-<identifier> a </identifier>
-<symbol> [ </symbol>
-<identifier> i </identifier>
-<symbol> ] </symbol>
-<symbol> ; </symbol>
-<keyword> let </keyword>
-<identifier> i </identifier>
-<symbol> = </symbol>
-<identifier> i </identifier>
-<symbol> + </symbol>
-<integerConstant> 1 </integerConstant>
-<symbol> ; </symbol>
-<symbol> } </symbol>
-<keyword> do </keyword>
-<identifier> Output </identifier>
-<symbol> . </symbol>
-<identifier> printString </identifier>
-<symbol> ( </symbol>
-<stringConstant> THE AVERAGE IS:  </stringConstant>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> do </keyword>
-<identifier> Output </identifier>
-<symbol> . </symbol>
-<identifier> printInt </identifier>
-<symbol> ( </symbol>
-<identifier> sum </identifier>
-<symbol> / </symbol>
-<identifier> length </identifier>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> do </keyword>
-<identifier> Output </identifier>
-<symbol> . </symbol>
-<identifier> println </identifier>
-<symbol> ( </symbol>
-<symbol> ) </symbol>
-<symbol> ; </symbol>
-<keyword> return </keyword>
-<symbol> ; </symbol>
-<symbol> } </symbol>
-<symbol> } </symbol>
+<IDENTIFIER>classMain</IDENTIFIER>
+<SYMBOL>{</SYMBOL>
+<IDENTIFIER>functionvoidmain</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>{</SYMBOL>
+<IDENTIFIER>varArraya</IDENTIFIER>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>varintlength</IDENTIFIER>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>varinti</IDENTIFIER>
+<SYMBOL>,</SYMBOL>
+<IDENTIFIER>sum</IDENTIFIER>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>letlength</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>Keyboard</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>readInt</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<STRING_CONST>HOWMANYNUMBERS?</STRING_CONST>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>leta</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>Array</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>new</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<IDENTIFIER>length</IDENTIFIER>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>leti</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<INT_CONST>0</INT_CONST>
+<SYMBOL>;</SYMBOL>
+<KEYWORD>WHILE</KEYWORD>
+<SYMBOL>(</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>&lt;</SYMBOL>
+<IDENTIFIER>length</IDENTIFIER>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>{</SYMBOL>
+<IDENTIFIER>leta</IDENTIFIER>
+<SYMBOL>[</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>]</SYMBOL>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>Keyboard</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>readInt</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<STRING_CONST>ENTERTHENEXTNUMBER:</STRING_CONST>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>leti</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>+</SYMBOL>
+<INT_CONST>1</INT_CONST>
+<SYMBOL>;</SYMBOL>
+<SYMBOL>}</SYMBOL>
+<IDENTIFIER>leti</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<INT_CONST>0</INT_CONST>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>letsum</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<INT_CONST>0</INT_CONST>
+<SYMBOL>;</SYMBOL>
+<KEYWORD>WHILE</KEYWORD>
+<SYMBOL>(</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>&lt;</SYMBOL>
+<IDENTIFIER>length</IDENTIFIER>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>{</SYMBOL>
+<IDENTIFIER>letsum</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>sum</IDENTIFIER>
+<SYMBOL>+</SYMBOL>
+<IDENTIFIER>a</IDENTIFIER>
+<SYMBOL>[</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>]</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>leti</IDENTIFIER>
+<SYMBOL>=</SYMBOL>
+<IDENTIFIER>i</IDENTIFIER>
+<SYMBOL>+</SYMBOL>
+<INT_CONST>1</INT_CONST>
+<SYMBOL>;</SYMBOL>
+<SYMBOL>}</SYMBOL>
+<IDENTIFIER>doOutput</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>printString</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<STRING_CONST>THEAVERAGEIS:</STRING_CONST>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>doOutput</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>printInt</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<IDENTIFIER>sum</IDENTIFIER>
+<SYMBOL>/</SYMBOL>
+<IDENTIFIER>length</IDENTIFIER>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<IDENTIFIER>doOutput</IDENTIFIER>
+<SYMBOL>.</SYMBOL>
+<IDENTIFIER>println</IDENTIFIER>
+<SYMBOL>(</SYMBOL>
+<SYMBOL>)</SYMBOL>
+<SYMBOL>;</SYMBOL>
+<KEYWORD>RETURN</KEYWORD>
+<SYMBOL>;</SYMBOL>
+<SYMBOL>}</SYMBOL>
+<SYMBOL>}</SYMBOL>
 </tokens>

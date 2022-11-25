@@ -47,6 +47,10 @@ JackTokenizer::~JackTokenizer() {}
 bool JackTokenizer::HasMoreTokens() { return cursor < length; }
 
 void JackTokenizer::Advance() {
+  if (ifRetreat) {
+    ifRetreat = false;
+    return;
+  }
 
   // skip spaces
   while (fileContent[cursor] == ' ') {
@@ -88,6 +92,10 @@ void JackTokenizer::Advance() {
   }
 }
 
+void JackTokenizer::Retreat() {
+  ifRetreat = true;
+}
+
 std::string JackTokenizer::TokenType() { return currentTokenType; }
 
 std::string JackTokenizer::Keyword() {
@@ -100,17 +108,7 @@ std::string JackTokenizer::Keyword() {
 
 std::string JackTokenizer::Symbol() {
   if (currentTokenType == "SYMBOL") {
-    if (currentToken == "<") {
-      return "&lt;";
-    } else if (currentToken == ">") {
-      return "&gt;";
-    } else if (currentToken == "\"") {
-      return "&quot;";
-    } else if (currentToken == "&") {
-      return "&amp;";
-    } else {
-      return currentToken;
-    }
+    return currentToken;
   } else {
     throw std::runtime_error("Current token is not a symbol");
   }

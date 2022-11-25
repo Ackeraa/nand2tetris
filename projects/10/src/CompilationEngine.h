@@ -11,7 +11,6 @@ public:
   void CompileClass();
   void CompileClassVarDeC();
   void CompileSubroutine();
-  void CompileSubroutineBody();
   void CompileSubroutineCall();
 
   void CompileParameterList();
@@ -30,9 +29,9 @@ private:
   void EatKeyword();
   void EatSymbol();
   void EatIdentifier();
-  void EatIntConst();
-  void EatStringConst();
   void EatType();
+  void EatIntegerConstant();
+  void EatStringConstant();
 
   void EatBeginTag(const std::string &tag);
   void EatEndTag(const std::string &tag);

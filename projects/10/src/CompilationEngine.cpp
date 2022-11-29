@@ -1,11 +1,14 @@
 #include "CompilationEngine.h"
 #include <iostream>
 
+using namespace std;
+
 CompilationEngine::CompilationEngine(JackTokenizer *JackTokenizer,
                                      const std::string &outputName) {
   this->jackTokenizer = JackTokenizer;
   // open output file
   outputFile.open(outputName);
+
   if (!outputFile.is_open()) {
     throw std::runtime_error("Failed to open output file");
   }
@@ -27,18 +30,21 @@ void CompilationEngine::CompileClass() {
   // {
   EatSymbol();
   // classVarDec*
-  while (jackTokenizer->Keyword() == "static" ||
-         jackTokenizer->Keyword() == "field") {
+  while (jackTokenizer->TokenType() == "KEYWORD" &&
+         (jackTokenizer->Keyword() == "static" ||
+          jackTokenizer->Keyword() == "field")) {
     CompileClassVarDeC();
   }
   // subroutine
-  while (jackTokenizer->Keyword() == "constructor" ||
-         jackTokenizer->Keyword() == "function" ||
-         jackTokenizer->Keyword() == "method") {
+  while (jackTokenizer->TokenType() == "KEYWORD" &&
+         (jackTokenizer->Keyword() == "constructor" ||
+          jackTokenizer->Keyword() == "function" ||
+          jackTokenizer->Keyword() == "method")) {
     CompileSubroutine();
   }
   // }
   EatSymbol();
+
   EatEndTag("class");
 }
 
@@ -51,7 +57,8 @@ void CompilationEngine::CompileClassVarDeC() {
   // varName
   EatIdentifier();
   // (, varName)*
-  while (jackTokenizer->Symbol() == ",") {
+  while (jackTokenizer->TokenType() == "SYMBOL" &&
+         jackTokenizer->Symbol() == ",") {
     // ,
     EatSymbol();
     // varName
@@ -67,7 +74,7 @@ void CompilationEngine::CompileSubroutine() {
   // constructor | function | method
   EatKeyword();
   // void | type
-  EatKeyword();
+  EatType();
   // subroutineName
   EatIdentifier();
   // (
@@ -82,7 +89,8 @@ void CompilationEngine::CompileSubroutine() {
   // {
   EatSymbol();
   // varDec*
-  while (jackTokenizer->Keyword() == "var") {
+  while (jackTokenizer->TokenType() == "KEYWORD" &&
+         jackTokenizer->Keyword() == "var") {
     CompileVarDeC();
   }
   // statements
@@ -114,7 +122,8 @@ void CompilationEngine::CompileSubroutineCall() {
 void CompilationEngine::CompileParameterList() {
   EatBeginTag("parameterList");
   // ((type varName) (, type varName)*)?
-  while (jackTokenizer->Symbol() != ")") {
+  while (jackTokenizer->TokenType() != "SYMBOL" ||
+         jackTokenizer->Symbol() != ")") {
     // type
     EatType();
     // varName
@@ -136,7 +145,8 @@ void CompilationEngine::CompileVarDeC() {
   // varName
   EatIdentifier();
   // (, varName)*
-  while (jackTokenizer->Symbol() == ",") {
+  while (jackTokenizer->TokenType() == "SYMBOL" &&
+         jackTokenizer->Symbol() == ",") {
     // ,
     EatSymbol();
     // varName
@@ -150,7 +160,7 @@ void CompilationEngine::CompileVarDeC() {
 void CompilationEngine::CompileStatements() {
   EatBeginTag("statements");
   // statement*
-  while (1) {
+  while (jackTokenizer->TokenType() == "KEYWORD") {
     if (jackTokenizer->Keyword() == "let") {
       CompileLet();
     } else if (jackTokenizer->Keyword() == "if") {
@@ -227,7 +237,8 @@ void CompilationEngine::CompileReturn() {
   // return
   EatKeyword();
   // expression?
-  if (jackTokenizer->Symbol() != ";") {
+  if (jackTokenizer->TokenType() != "SYMBOL" ||
+      jackTokenizer->Symbol() != ";") {
     CompileExpression();
   }
   // ;
@@ -270,11 +281,12 @@ void CompilationEngine::CompileExpression() {
   // term
   CompileTerm();
   // (op term)*
-  while (jackTokenizer->Symbol() == "+" || jackTokenizer->Symbol() == "-" ||
-         jackTokenizer->Symbol() == "*" || jackTokenizer->Symbol() == "/" ||
-         jackTokenizer->Symbol() == "&" || jackTokenizer->Symbol() == "|" ||
-         jackTokenizer->Symbol() == "<" || jackTokenizer->Symbol() == ">" ||
-         jackTokenizer->Symbol() == "=") {
+  while (jackTokenizer->TokenType() == "SYMBOL" &&
+         (jackTokenizer->Symbol() == "+" || jackTokenizer->Symbol() == "-" ||
+          jackTokenizer->Symbol() == "*" || jackTokenizer->Symbol() == "/" ||
+          jackTokenizer->Symbol() == "&" || jackTokenizer->Symbol() == "|" ||
+          jackTokenizer->Symbol() == "<" || jackTokenizer->Symbol() == ">" ||
+          jackTokenizer->Symbol() == "=")) {
     // op
     EatSymbol();
     // term
@@ -310,11 +322,13 @@ void CompilationEngine::CompileTerm() {
       EatSymbol();
     } else if (jackTokenizer->Symbol() == "(" ||
                jackTokenizer->Symbol() == ".") {
+
       // subroutineCall
       jackTokenizer->Retreat();
       CompileSubroutineCall();
     } else {
       // varName
+      jackTokenizer->Retreat();
       EatIdentifier();
     }
   } else if (jackTokenizer->Symbol() == "(") {
@@ -338,10 +352,13 @@ void CompilationEngine::CompileTerm() {
 void CompilationEngine::CompileExpressionList() {
   EatBeginTag("expressionList");
   // (expression (, expression)*)?
-  if (jackTokenizer->Symbol() != ")") {
+
+  if (jackTokenizer->TokenType() != "SYMBOL" ||
+      jackTokenizer->Symbol() != ")") {
     CompileExpression();
 
-    while (jackTokenizer->Symbol() == ",") {
+    while (jackTokenizer->TokenType() == "SYMBOL" &&
+           jackTokenizer->Symbol() == ",") {
       // ,
       EatSymbol();
       // expression
@@ -358,8 +375,16 @@ void CompilationEngine::EatKeyword() {
 }
 
 void CompilationEngine::EatSymbol() {
-  outputFile << "<symbol> " << jackTokenizer->Symbol() << " </symbol>"
-             << std::endl;
+  string symbol = jackTokenizer->Symbol();
+  if (symbol == "<") {
+    outputFile << "<symbol> &lt; </symbol>" << std::endl;
+  } else if (symbol == ">") {
+    outputFile << "<symbol> &gt; </symbol>" << std::endl;
+  } else if (symbol == "&") {
+    outputFile << "<symbol> &amp; </symbol>" << std::endl;
+  } else {
+    outputFile << "<symbol> " << symbol << " </symbol>" << std::endl;
+  }
   jackTokenizer->Advance();
 }
 

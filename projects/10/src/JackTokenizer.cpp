@@ -47,14 +47,16 @@ JackTokenizer::~JackTokenizer() {}
 bool JackTokenizer::HasMoreTokens() { return cursor < length; }
 
 void JackTokenizer::Advance() {
-  if (ifRetreat) {
-    ifRetreat = false;
-    return;
-  }
+  lastCursor = cursor;
+  lastToken = currentToken;
+  lastTokenType = currentTokenType;
 
-  // skip spaces
-  while (fileContent[cursor] == ' ') {
+  // skip spaces and tabs
+  while (fileContent[cursor] == ' ' || fileContent[cursor] == '\t') {
     cursor++;
+  }
+  if (cursor >= length) {
+    return;
   }
   char c = fileContent[cursor];
   currentToken = "";
@@ -93,7 +95,12 @@ void JackTokenizer::Advance() {
 }
 
 void JackTokenizer::Retreat() {
-  ifRetreat = true;
+  if (cursor == 0) {
+    throw std::runtime_error("Cannot retreat");
+  }
+  cursor = lastCursor;
+  currentToken = lastToken;
+  currentTokenType = lastTokenType;
 }
 
 std::string JackTokenizer::TokenType() { return currentTokenType; }

@@ -22,7 +22,10 @@ private:
     std::string currentTokenType;
     int cursor;
     int length;
-    bool ifRetreat=false;
+
+    int lastCursor;
+    std::string lastToken;
+    std::string lastTokenType;
 
     bool IsSymbol(char c);
     bool IsDigit(char c);

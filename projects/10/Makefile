@@ -3,7 +3,8 @@ objects = obj/JackAnalyzer.o \
 					obj/CompilationEngine.o \
 					obj/SymbolTable.o \
 					obj/VMWriter.o \
-					obj/CodeWriter.o
+					obj/CodeWriter.o	\
+					obj/Utils.o
 
 obj/%.o: src/%.cpp
 	mkdir -p obj

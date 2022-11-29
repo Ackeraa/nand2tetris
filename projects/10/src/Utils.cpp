@@ -1,0 +1,46 @@
+#include "Utils.h"
+
+std::unordered_map<std::string, KEYWORD_TYPE> keywordMap = {
+    {"class", KEYWORD_TYPE::CLASS},
+    {"constructor", KEYWORD_TYPE::CONSTRUCTOR},
+    {"function", KEYWORD_TYPE::FUNCTION},
+    {"method", KEYWORD_TYPE::METHOD},
+    {"field", KEYWORD_TYPE::FIELD},
+    {"static", KEYWORD_TYPE::STATIC},
+    {"var", KEYWORD_TYPE::VAR},
+    {"int", KEYWORD_TYPE::INT},
+    {"char", KEYWORD_TYPE::CHAR},
+    {"boolean", KEYWORD_TYPE::BOOLEAN},
+    {"void", KEYWORD_TYPE::VOID},
+    {"true", KEYWORD_TYPE::TRUE},
+    {"false", KEYWORD_TYPE::FALSE},
+    {"null", KEYWORD_TYPE::NULL_},
+    {"this", KEYWORD_TYPE::THIS},
+    {"let", KEYWORD_TYPE::LET},
+    {"do", KEYWORD_TYPE::DO},
+    {"if", KEYWORD_TYPE::IF},
+    {"else", KEYWORD_TYPE::ELSE},
+    {"while", KEYWORD_TYPE::WHILE},
+    {"return", KEYWORD_TYPE::RETURN}};
+
+std::unordered_map<std::string, SYMBOL_TYPE> symbolMap = {
+    {"{", SYMBOL_TYPE::LEFT_BRACE},
+    {"}", SYMBOL_TYPE::RIGHT_BRACE},
+    {"(", SYMBOL_TYPE::LEFT_PAREN},
+    {")", SYMBOL_TYPE::RIGHT_PAREN},
+    {"[", SYMBOL_TYPE::LEFT_BRACKET},
+    {"]", SYMBOL_TYPE::RIGHT_BRACKET},
+    {".", SYMBOL_TYPE::DOT},
+    {",", SYMBOL_TYPE::COMMA},
+    {";", SYMBOL_TYPE::SEMICOLON},
+    {"+", SYMBOL_TYPE::PLUS},
+    {"-", SYMBOL_TYPE::MINUS},
+    {"*", SYMBOL_TYPE::STAR},
+    {"/", SYMBOL_TYPE::SLASH},
+    {"&", SYMBOL_TYPE::AMPERSAND},
+    {"|", SYMBOL_TYPE::VERTICAL_BAR},
+    {"<", SYMBOL_TYPE::LESS_THAN},
+    {">", SYMBOL_TYPE::GREATER_THAN},
+    {"=", SYMBOL_TYPE::EQUAL},
+    {"~", SYMBOL_TYPE::TILDE}};
+

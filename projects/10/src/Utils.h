@@ -1,0 +1,58 @@
+#pragma once
+#include <unordered_map>
+#include <string>
+
+enum class TOKEN_TYPE {
+  KEYWORD,
+  SYMBOL,
+  IDENTIFIER,
+  INT_CONST,
+  STRING_CONST,
+  INVALID
+};
+
+enum class KEYWORD_TYPE {
+  CLASS,
+  METHOD,
+  FUNCTION,
+  CONSTRUCTOR,
+  INT,
+  BOOLEAN,
+  CHAR,
+  VOID,
+  VAR,
+  STATIC,
+  FIELD,
+  LET,
+  DO,
+  IF,
+  ELSE,
+  WHILE,
+  RETURN,
+  TRUE,
+  FALSE,
+  NULL_,
+  THIS
+};
+
+enum class SYMBOL_TYPE {
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  LEFT_BRACE,
+  RIGHT_BRACE,
+  LEFT_BRACKET,
+  RIGHT_BRACKET,
+  DOT,
+  COMMA,
+  SEMICOLON,
+  PLUS,
+  MINUS,
+  STAR,
+  SLASH,
+  AMPERSAND,
+  VERTICAL_BAR,
+  LESS_THAN,
+  GREATER_THAN,
+  EQUAL,
+  TILDE
+};

@@ -30,16 +30,16 @@ void CompilationEngine::CompileClass() {
   // {
   EatSymbol();
   // classVarDec*
-  while (jackTokenizer->TokenType() == "KEYWORD" &&
-         (jackTokenizer->Keyword() == "static" ||
-          jackTokenizer->Keyword() == "field")) {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD &&
+         (jackTokenizer->Keyword() == KEYWORD_TYPE::STATIC ||
+          jackTokenizer->Keyword() == KEYWORD_TYPE::FIELD)) {
     CompileClassVarDeC();
   }
   // subroutine
-  while (jackTokenizer->TokenType() == "KEYWORD" &&
-         (jackTokenizer->Keyword() == "constructor" ||
-          jackTokenizer->Keyword() == "function" ||
-          jackTokenizer->Keyword() == "method")) {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD &&
+         (jackTokenizer->Keyword() == KEYWORD_TYPE::CONSTRUCTOR ||
+          jackTokenizer->Keyword() == KEYWORD_TYPE::FUNCTION ||
+          jackTokenizer->Keyword() == KEYWORD_TYPE::METHOD)) {
     CompileSubroutine();
   }
   // }
@@ -57,8 +57,8 @@ void CompilationEngine::CompileClassVarDeC() {
   // varName
   EatIdentifier();
   // (, varName)*
-  while (jackTokenizer->TokenType() == "SYMBOL" &&
-         jackTokenizer->Symbol() == ",") {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::SYMBOL &&
+         jackTokenizer->Symbol() == SYMBOL_TYPE::COMMA) {
     // ,
     EatSymbol();
     // varName
@@ -89,8 +89,8 @@ void CompilationEngine::CompileSubroutine() {
   // {
   EatSymbol();
   // varDec*
-  while (jackTokenizer->TokenType() == "KEYWORD" &&
-         jackTokenizer->Keyword() == "var") {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD &&
+         jackTokenizer->Keyword() == KEYWORD_TYPE::VAR) {
     CompileVarDeC();
   }
   // statements
@@ -105,7 +105,7 @@ void CompilationEngine::CompileSubroutine() {
 void CompilationEngine::CompileSubroutineCall() {
   // subroutineName
   EatIdentifier();
-  if (jackTokenizer->Symbol() == ".") {
+  if (jackTokenizer->Symbol() == SYMBOL_TYPE::DOT) {
     // .
     EatSymbol();
     // subroutineName
@@ -122,13 +122,13 @@ void CompilationEngine::CompileSubroutineCall() {
 void CompilationEngine::CompileParameterList() {
   EatBeginTag("parameterList");
   // ((type varName) (, type varName)*)?
-  while (jackTokenizer->TokenType() != "SYMBOL" ||
-         jackTokenizer->Symbol() != ")") {
+  while (jackTokenizer->TokenType() != TOKEN_TYPE::SYMBOL ||
+         jackTokenizer->Symbol() != SYMBOL_TYPE::RIGHT_PAREN) {
     // type
     EatType();
     // varName
     EatIdentifier();
-    if (jackTokenizer->Symbol() == ",") {
+    if (jackTokenizer->Symbol() == SYMBOL_TYPE::COMMA) {
       // ,
       EatSymbol();
     }
@@ -145,8 +145,8 @@ void CompilationEngine::CompileVarDeC() {
   // varName
   EatIdentifier();
   // (, varName)*
-  while (jackTokenizer->TokenType() == "SYMBOL" &&
-         jackTokenizer->Symbol() == ",") {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::SYMBOL &&
+         jackTokenizer->Symbol() == SYMBOL_TYPE::COMMA) {
     // ,
     EatSymbol();
     // varName
@@ -160,16 +160,16 @@ void CompilationEngine::CompileVarDeC() {
 void CompilationEngine::CompileStatements() {
   EatBeginTag("statements");
   // statement*
-  while (jackTokenizer->TokenType() == "KEYWORD") {
-    if (jackTokenizer->Keyword() == "let") {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD) {
+    if (jackTokenizer->Keyword() == KEYWORD_TYPE::LET) {
       CompileLet();
-    } else if (jackTokenizer->Keyword() == "if") {
+    } else if (jackTokenizer->Keyword() == KEYWORD_TYPE::IF) {
       CompileIf();
-    } else if (jackTokenizer->Keyword() == "while") {
+    } else if (jackTokenizer->Keyword() == KEYWORD_TYPE::WHILE) {
       CompileWhile();
-    } else if (jackTokenizer->Keyword() == "do") {
+    } else if (jackTokenizer->Keyword() == KEYWORD_TYPE::DO) {
       CompileDo();
-    } else if (jackTokenizer->Keyword() == "return") {
+    } else if (jackTokenizer->Keyword() == KEYWORD_TYPE::RETURN) {
       CompileReturn();
     } else {
       break;
@@ -196,7 +196,7 @@ void CompilationEngine::CompileLet() {
   // varName
   EatIdentifier();
   // ( [ expression ] )?
-  if (jackTokenizer->Symbol() == "[") {
+  if (jackTokenizer->Symbol() == SYMBOL_TYPE::LEFT_BRACKET) {
     // [
     EatSymbol();
     // expression
@@ -237,8 +237,8 @@ void CompilationEngine::CompileReturn() {
   // return
   EatKeyword();
   // expression?
-  if (jackTokenizer->TokenType() != "SYMBOL" ||
-      jackTokenizer->Symbol() != ";") {
+  if (jackTokenizer->TokenType() != TOKEN_TYPE::SYMBOL ||
+      jackTokenizer->Symbol() != SYMBOL_TYPE::SEMICOLON) {
     CompileExpression();
   }
   // ;
@@ -263,7 +263,7 @@ void CompilationEngine::CompileIf() {
   // }
   EatSymbol();
   // (else { statements })?
-  if (jackTokenizer->Keyword() == "else") {
+  if (jackTokenizer->Keyword() == KEYWORD_TYPE::ELSE) {
     // else
     EatKeyword();
     // {
@@ -281,12 +281,16 @@ void CompilationEngine::CompileExpression() {
   // term
   CompileTerm();
   // (op term)*
-  while (jackTokenizer->TokenType() == "SYMBOL" &&
-         (jackTokenizer->Symbol() == "+" || jackTokenizer->Symbol() == "-" ||
-          jackTokenizer->Symbol() == "*" || jackTokenizer->Symbol() == "/" ||
-          jackTokenizer->Symbol() == "&" || jackTokenizer->Symbol() == "|" ||
-          jackTokenizer->Symbol() == "<" || jackTokenizer->Symbol() == ">" ||
-          jackTokenizer->Symbol() == "=")) {
+  while (jackTokenizer->TokenType() == TOKEN_TYPE::SYMBOL &&
+         (jackTokenizer->Symbol() == SYMBOL_TYPE::PLUS ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::MINUS ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::STAR ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::SLASH ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::AMPERSAND ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::VERTICAL_BAR ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::LESS_THAN ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::GREATER_THAN ||
+          jackTokenizer->Symbol() == SYMBOL_TYPE::EQUAL)) {
     // op
     EatSymbol();
     // term
@@ -301,16 +305,16 @@ void CompilationEngine::CompileTerm() {
   // varName[expression] | subroutineCall | (expression) | unaryOp term
 
   // integerConstant | stringConstant | keywordConstant
-  if (jackTokenizer->TokenType() == "INT_CONST") {
+  if (jackTokenizer->TokenType() == TOKEN_TYPE::INT_CONST) {
     EatIntegerConstant();
-  } else if (jackTokenizer->TokenType() == "STRING_CONST") {
+  } else if (jackTokenizer->TokenType() == TOKEN_TYPE::STRING_CONST) {
     EatStringConstant();
-  } else if (jackTokenizer->TokenType() == "KEYWORD") {
+  } else if (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD) {
     EatKeyword();
-  } else if (jackTokenizer->TokenType() == "IDENTIFIER") {
+  } else if (jackTokenizer->TokenType() == TOKEN_TYPE::IDENTIFIER) {
     // varName | varName[expression] | subroutineCall
     jackTokenizer->Advance();
-    if (jackTokenizer->Symbol() == "[") {
+    if (jackTokenizer->Symbol() == SYMBOL_TYPE::LEFT_BRACKET) {
       // varName
       jackTokenizer->Retreat();
       EatIdentifier();
@@ -320,8 +324,8 @@ void CompilationEngine::CompileTerm() {
       CompileExpression();
       // ]
       EatSymbol();
-    } else if (jackTokenizer->Symbol() == "(" ||
-               jackTokenizer->Symbol() == ".") {
+    } else if (jackTokenizer->Symbol() == SYMBOL_TYPE::LEFT_PAREN ||
+               jackTokenizer->Symbol() == SYMBOL_TYPE::DOT) {
 
       // subroutineCall
       jackTokenizer->Retreat();
@@ -331,7 +335,7 @@ void CompilationEngine::CompileTerm() {
       jackTokenizer->Retreat();
       EatIdentifier();
     }
-  } else if (jackTokenizer->Symbol() == "(") {
+  } else if (jackTokenizer->Symbol() == SYMBOL_TYPE::LEFT_PAREN) {
     // (expression)
     // (
     EatSymbol();
@@ -339,7 +343,8 @@ void CompilationEngine::CompileTerm() {
     CompileExpression();
     // )
     EatSymbol();
-  } else if (jackTokenizer->Symbol() == "-" || jackTokenizer->Symbol() == "~") {
+  } else if (jackTokenizer->Symbol() == SYMBOL_TYPE::MINUS ||
+             jackTokenizer->Symbol() == SYMBOL_TYPE::TILDE) {
     // unaryOp term
     // unaryOp
     EatSymbol();
@@ -353,12 +358,12 @@ void CompilationEngine::CompileExpressionList() {
   EatBeginTag("expressionList");
   // (expression (, expression)*)?
 
-  if (jackTokenizer->TokenType() != "SYMBOL" ||
-      jackTokenizer->Symbol() != ")") {
+  if (jackTokenizer->TokenType() != TOKEN_TYPE::SYMBOL ||
+      jackTokenizer->Symbol() != SYMBOL_TYPE::RIGHT_PAREN) {
     CompileExpression();
 
-    while (jackTokenizer->TokenType() == "SYMBOL" &&
-           jackTokenizer->Symbol() == ",") {
+    while (jackTokenizer->TokenType() == TOKEN_TYPE::SYMBOL &&
+           jackTokenizer->Symbol() == SYMBOL_TYPE::COMMA) {
       // ,
       EatSymbol();
       // expression
@@ -369,28 +374,32 @@ void CompilationEngine::CompileExpressionList() {
 }
 
 void CompilationEngine::EatKeyword() {
-  outputFile << "<keyword> " << jackTokenizer->Keyword() << " </keyword>"
-             << std::endl;
+  outputFile << "<keyword> " << jackTokenizer->KeywordString() << " </keyword>"
+             << endl;
   jackTokenizer->Advance();
 }
 
 void CompilationEngine::EatSymbol() {
-  string symbol = jackTokenizer->Symbol();
-  if (symbol == "<") {
-    outputFile << "<symbol> &lt; </symbol>" << std::endl;
-  } else if (symbol == ">") {
-    outputFile << "<symbol> &gt; </symbol>" << std::endl;
-  } else if (symbol == "&") {
-    outputFile << "<symbol> &amp; </symbol>" << std::endl;
+  SYMBOL_TYPE symbol = jackTokenizer->Symbol();
+  string symbolString;
+  if (symbol == SYMBOL_TYPE::LESS_THAN) {
+    symbolString = "&lt;";
+  } else if (symbol == SYMBOL_TYPE::GREATER_THAN) {
+    symbolString = "&gt;";
+  } else if (symbol == SYMBOL_TYPE::AMPERSAND) {
+    symbolString = "&amp;";
   } else {
-    outputFile << "<symbol> " << symbol << " </symbol>" << std::endl;
+    symbolString = jackTokenizer->SymbolString();
   }
+  outputFile << "<symbol> " << symbolString << " </symbol>" << endl;
+
   jackTokenizer->Advance();
 }
 
 void CompilationEngine::EatIdentifier() {
   outputFile << "<identifier> " << jackTokenizer->Identifier()
              << " </identifier>" << std::endl;
+
   jackTokenizer->Advance();
 }
 
@@ -407,9 +416,9 @@ void CompilationEngine::EatStringConstant() {
 }
 
 void CompilationEngine::EatType() {
-  if (jackTokenizer->TokenType() == "KEYWORD") {
+  if (jackTokenizer->TokenType() == TOKEN_TYPE::KEYWORD) {
     EatKeyword();
-  } else if (jackTokenizer->TokenType() == "IDENTIFIER") {
+  } else if (jackTokenizer->TokenType() == TOKEN_TYPE::IDENTIFIER) {
     EatIdentifier();
   }
 }

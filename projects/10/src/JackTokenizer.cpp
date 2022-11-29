@@ -2,7 +2,8 @@
 #include <algorithm>
 #include <iostream>
 
-// TODO: make currentToken a type of any.
+extern std::unordered_map<std::string, KEYWORD_TYPE> keywordMap;
+extern std::unordered_map<std::string, SYMBOL_TYPE> symbolMap;
 
 JackTokenizer::JackTokenizer(std::string fileName) {
   std::string line;
@@ -60,34 +61,33 @@ void JackTokenizer::Advance() {
   }
   char c = fileContent[cursor];
   currentToken = "";
-  currentTokenType = "";
+  currentTokenType = TOKEN_TYPE::INVALID;
   if (IsSymbol(c)) {
     currentToken = c;
-    currentTokenType = "SYMBOL";
+    currentTokenType = TOKEN_TYPE::SYMBOL;
     cursor++;
   } else if (IsDigit(c)) {
     currentToken = c;
     while (IsDigit(fileContent[++cursor])) {
       currentToken += fileContent[cursor];
     }
-    currentTokenType = "INT_CONST";
+    currentTokenType = TOKEN_TYPE::INT_CONST;
   } else if (IsLetter(c)) {
     currentToken = c;
     while (IsLetterOrDigitOr_(fileContent[++cursor])) {
       currentToken += fileContent[cursor];
     }
     if (IsKeyword(currentToken)) {
-      currentTokenType = "KEYWORD";
-      // cout << "KEYWORD: " << currentToken << endl;
+      currentTokenType = TOKEN_TYPE::KEYWORD;
     } else {
-      currentTokenType = "IDENTIFIER";
+      currentTokenType = TOKEN_TYPE::IDENTIFIER;
     }
   } else if (c == '"') {
     currentToken = "";
     while (fileContent[++cursor] != '"') {
       currentToken += fileContent[cursor];
     }
-    currentTokenType = "STRING_CONST";
+    currentTokenType = TOKEN_TYPE::STRING_CONST;
     cursor++;
   } else {
     throw std::runtime_error("Invalid char: " + std::to_string(int(c)));
@@ -103,18 +103,34 @@ void JackTokenizer::Retreat() {
   currentTokenType = lastTokenType;
 }
 
-std::string JackTokenizer::TokenType() { return currentTokenType; }
+enum TOKEN_TYPE JackTokenizer::TokenType() { return currentTokenType; }
 
-std::string JackTokenizer::Keyword() {
-  if (currentTokenType == "KEYWORD") {
+KEYWORD_TYPE JackTokenizer::Keyword() {
+  if (currentTokenType == TOKEN_TYPE::KEYWORD) {
+    return keywordMap[currentToken];
+  } else {
+    throw std::runtime_error("Current token is not a keyword");
+  }
+}
+
+std::string JackTokenizer::KeywordString() {
+  if (currentTokenType == TOKEN_TYPE::KEYWORD) {
     return currentToken;
   } else {
     throw std::runtime_error("Current token is not a keyword");
   }
 }
 
-std::string JackTokenizer::Symbol() {
-  if (currentTokenType == "SYMBOL") {
+SYMBOL_TYPE JackTokenizer::Symbol() {
+  if (currentTokenType == TOKEN_TYPE::SYMBOL) {
+    return symbolMap[currentToken];
+  } else {
+    throw std::runtime_error("Current token is not a symbol");
+  }
+}
+
+std::string JackTokenizer::SymbolString() {
+  if (currentTokenType == TOKEN_TYPE::SYMBOL) {
     return currentToken;
   } else {
     throw std::runtime_error("Current token is not a symbol");
@@ -122,7 +138,7 @@ std::string JackTokenizer::Symbol() {
 }
 
 std::string JackTokenizer::Identifier() {
-  if (currentTokenType == "IDENTIFIER") {
+  if (currentTokenType == TOKEN_TYPE::IDENTIFIER) {
     return currentToken;
   } else {
     throw std::runtime_error("Current token is not an identifier");
@@ -130,7 +146,7 @@ std::string JackTokenizer::Identifier() {
 }
 
 int JackTokenizer::IntVal() {
-  if (currentTokenType == "INT_CONST") {
+  if (currentTokenType == TOKEN_TYPE::INT_CONST) {
     return std::stoi(currentToken);
   } else {
     throw std::runtime_error("Current token is not an integer");
@@ -138,7 +154,7 @@ int JackTokenizer::IntVal() {
 }
 
 std::string JackTokenizer::StringVal() {
-  if (currentTokenType == "STRING_CONST") {
+  if (currentTokenType == TOKEN_TYPE::STRING_CONST) {
     return currentToken;
   } else {
     throw std::runtime_error("Current token is not a string");
@@ -160,17 +176,11 @@ bool JackTokenizer::IsLetterOrDigitOr_(char c) {
 }
 
 bool JackTokenizer::IsSymbol(char c) {
-  return c == '{' || c == '}' || c == '(' || c == ')' || c == '[' || c == ']' ||
-         c == '.' || c == ',' || c == ';' || c == '+' || c == '-' || c == '*' ||
-         c == '/' || c == '&' || c == '|' || c == '<' || c == '>' || c == '=' ||
-         c == '~';
+  // check if c in symbolMap
+  return symbolMap.find(std::string(1, c)) != symbolMap.end();
 }
 
 bool JackTokenizer::IsKeyword(std::string s) {
-  return s == "class" || s == "constructor" || s == "function" ||
-         s == "method" || s == "field" || s == "static" || s == "var" ||
-         s == "int" || s == "char" || s == "boolean" || s == "void" ||
-         s == "true" || s == "false" || s == "null" || s == "this" ||
-         s == "let" || s == "do" || s == "if" || s == "else" || s == "while" ||
-         s == "return";
+  // check if s in keywordMap
+  return keywordMap.find(s) != keywordMap.end();
 }
